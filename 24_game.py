@@ -1,3 +1,6 @@
+#!/usr/bin/python3
+# -*- coding: UTF-8 -*-
+
 import itertools
 import time
 import math
@@ -17,94 +20,98 @@ OP_C = 9  # Combinations
 OP_P = 10  # Permutations
 
 # List of basic operators
-operators = [OP_ADD,
-             OP_SUB,
-             OP_MUL,
-             OP_DIV]
+operators = [OP_ADD, OP_SUB, OP_MUL, OP_DIV]
 
 # List of advanced operators
-advanced_operators = [OP_POW,
-                      OP_LOG,
-                      OP_C,
-                      OP_P]
+advanced_operators = [OP_POW, OP_LOG, OP_C, OP_P]
 
 # List of unary operators
-_unary_operators = [OP_SQRT,
-                    OP_FACT]
+_unary_operators = [OP_SQRT, OP_FACT]
 
 # List of enabled unary operators
 unary_operators = []
 
 # Symbol of operators
-symbol_of_operator = {OP_ADD: "%s+%s",
-                      OP_SUB: "%s-%s",
-                      OP_MUL: "%s*%s",
-                      OP_DIV: "%s/%s",
-                      OP_POW: "%s^%s",
-                      OP_SQRT: "sqrt(%s)",
-                      OP_FACT: "%s!",
-                      OP_LOG: "log_%s(%s)",
-                      OP_C: "C(%s, %s)",
-                      OP_P: "P(%s, %s)"}
+symbol_of_operator = {
+    OP_ADD: "%s+%s",
+    OP_SUB: "%s-%s",
+    OP_MUL: "%s*%s",
+    OP_DIV: "%s/%s",
+    OP_POW: "%s^%s",
+    OP_SQRT: "sqrt(%s)",
+    OP_FACT: "%s!",
+    OP_LOG: "log_%s(%s)",
+    OP_C: "C(%s, %s)",
+    OP_P: "P(%s, %s)",
+}
 
 # Priority of operators
-priority_of_operator = {OP_ADD: 0,
-                        OP_SUB: 0,
-                        OP_MUL: 1,
-                        OP_DIV: 1,
-                        OP_POW: 2,
-                        OP_LOG: 3,
-                        OP_C: 3,
-                        OP_P: 3,
-                        OP_SQRT: 3,
-                        OP_FACT: 4,
-                        OP_CONST: 5}
+priority_of_operator = {
+    OP_ADD: 0,
+    OP_SUB: 0,
+    OP_MUL: 1,
+    OP_DIV: 1,
+    OP_POW: 2,
+    OP_LOG: 3,
+    OP_C: 3,
+    OP_P: 3,
+    OP_SQRT: 3,
+    OP_FACT: 4,
+    OP_CONST: 5,
+}
 
 # Whether operator is commutative
-is_operator_commutative = {OP_ADD: True,
-                           OP_SUB: False,
-                           OP_MUL: True,
-                           OP_DIV: False,
-                           OP_POW: False,
-                           OP_LOG: False,
-                           OP_C: False,
-                           OP_P: False}
+is_operator_commutative = {
+    OP_ADD: True,
+    OP_SUB: False,
+    OP_MUL: True,
+    OP_DIV: False,
+    OP_POW: False,
+    OP_LOG: False,
+    OP_C: False,
+    OP_P: False,
+}
 
 # Whether inside bracket is needed when rendering
-need_brackets = {OP_ADD: True,
-                 OP_SUB: True,
-                 OP_MUL: True,
-                 OP_DIV: True,
-                 OP_POW: True,
-                 OP_FACT: True,
-                 OP_SQRT: False,
-                 OP_LOG: False,
-                 OP_C: False,
-                 OP_P: False}
+need_brackets = {
+    OP_ADD: True,
+    OP_SUB: True,
+    OP_MUL: True,
+    OP_DIV: True,
+    OP_POW: True,
+    OP_FACT: True,
+    OP_SQRT: False,
+    OP_LOG: False,
+    OP_C: False,
+    OP_P: False,
+}
 
 
 def permutation(n, k):
-    return math.factorial(n)/math.factorial(k)
+    return math.factorial(int(n)) / math.factorial(int(k))
 
 
 def combination(n, k):
-    return permutation(n, k)/math.factorial(n-k)
+    return permutation(n, k) / math.factorial(int(n - k))
 
 
 def evaluate_operation(op, a, b=None):
     """
     Evaluate an operation on a and b.
     """
-    if op == OP_ADD: return a + b
-    if op == OP_SUB: return a - b
-    if op == OP_MUL: return a * b
+    if op == OP_ADD:
+        return a + b
+    if op == OP_SUB:
+        return a - b
+    if op == OP_MUL:
+        return a * b
 
     try:
         if op == OP_POW and abs(a) < 20 and abs(b) < 20:
             return a ** b
 
         if op == OP_FACT and a < 10:
-            return math.factorial(a)
+            return math.factorial(int(a))
 
         if op == OP_C and 0 < b <= a <= 13:
             return combination(a, b)
@@ -115,8 +122,10 @@ def evaluate_operation(op, a, b=None):
         if op == OP_SQRT and a < 1000000:
             return math.sqrt(a)
 
-        if op == OP_DIV: return a / b
-        if op == OP_LOG: return math.log(b, a)
+        if op == OP_DIV:
+            return a / b
+        if op == OP_LOG:
+            return math.log(b, a)
     except (ZeroDivisionError, ValueError, TypeError):
         pass
     except OverflowError:
@@ -142,9 +151,12 @@ def fit_to_int(x, eps=1e-9):
 
 class Node:
     def __init__(self, value=None, left=None, right=None, op=OP_CONST):
-        if op not in unary_operators \
-                and op != OP_CONST and is_operator_commutative[op] \
-                and str(left) > str(right):
+        if (
+            op not in unary_operators
+            and op != OP_CONST
+            and is_operator_commutative[op]
+            and str(left) > str(right)
+        ):
             left, right = right, left
 
         self._value = value
@@ -161,7 +173,9 @@ class Node:
             if self.op in unary_operators:
                 self._value = evaluate_operation(self.op, self.left.value)
             else:
-                self._value = evaluate_operation(self.op, self.left.value, self.right.value)
+                self._value = evaluate_operation(
+                    self.op, self.left.value, self.right.value
+                )
 
             self._value = fit_to_int(self._value)
         return self._value
@@ -180,8 +194,10 @@ class Node:
         elif self.op in unary_operators:
             str_left = str(self.left)
 
-            if need_brackets[self.op] \
-                    and priority_of_operator[self.left.op] < priority_of_operator[self.op]:
+            if (
+                need_brackets[self.op]
+                and priority_of_operator[self.left.op] < priority_of_operator[self.op]
+            ):
                 str_left = "(" + str_left + ")"
 
             return symbol_of_operator[self.op] % str_left
@@ -192,14 +208,19 @@ class Node:
             str_right = str(self.right)
 
             # Add brackets inside
-            if need_brackets[self.op] \
-                    and priority_of_operator[self.left.op] < priority_of_operator[self.op]:
+            if (
+                need_brackets[self.op]
+                and priority_of_operator[self.left.op] < priority_of_operator[self.op]
+            ):
                 str_left = "(" + str_left + ")"
 
-            if need_brackets[self.op] \
-                    and (priority_of_operator[self.right.op] < priority_of_operator[self.op]
-                         or (priority_of_operator[self.right.op] == priority_of_operator[self.op]
-                             and not is_operator_commutative[self.op])):
+            if need_brackets[self.op] and (
+                priority_of_operator[self.right.op] < priority_of_operator[self.op]
+                or (
+                    priority_of_operator[self.right.op] == priority_of_operator[self.op]
+                    and not is_operator_commutative[self.op]
+                )
+            ):
                 str_right = "(" + str_right + ")"
 
             # Render
@@ -222,10 +243,18 @@ def enumerate_nodes(node_list, callback, max_depth):
         new_node_list.remove(right)
 
         for op in operators:
-            enumerate_nodes(new_node_list + [Node(left=left, right=right, op=op)], callback, max_depth-1)
+            enumerate_nodes(
+                new_node_list + [Node(left=left, right=right, op=op)],
+                callback,
+                max_depth - 1,
+            )
 
             if not is_operator_commutative[op] and str(left) != str(right):
-                enumerate_nodes(new_node_list + [Node(left=right, right=left, op=op)], callback, max_depth-1)
+                enumerate_nodes(
+                    new_node_list + [Node(left=right, right=left, op=op)],
+                    callback,
+                    max_depth - 1,
+                )
 
     # Unary operators
     for number in node_list:
@@ -237,7 +266,7 @@ def enumerate_nodes(node_list, callback, max_depth):
             if new_node.value == number.value:
                 continue
 
-            enumerate_nodes(new_node_list + [new_node], callback, max_depth-1)
+            enumerate_nodes(new_node_list + [new_node], callback, max_depth - 1)
 
 
 class CallbackFindTarget:
@@ -274,8 +303,7 @@ class CallbackAllTarget:
         except ValueError:
             return
 
-        if node.value not in self.results \
-                and int(node.value) == node.value:
+        if node.value not in self.results and int(node.value) == node.value:
             self.results[node.value] = node
 
         self.enumeration_count += 1
@@ -328,7 +356,9 @@ def main():
 
         print()
 
-        unary_operators_allowed = select_int("Number of unary operators allowed:", default=1)
+        unary_operators_allowed = select_int(
+            "Number of unary operators allowed:", default=1
+        )
         print("%d unary operators allowed" % unary_operators_allowed)
     else:
         print("Unary operator disabled")
@@ -360,15 +390,17 @@ def main():
         else:
             callback = CallbackFindTarget(target=target)
 
-        inputs = [int(i) for i in input("Enter some numbers:").split(" ")
-                  if i != ""]
+        inputs = [int(i) for i in input("Enter some numbers:").split(" ") if i != ""]
         node_list = [Node(value=i) for i in inputs]
 
         print()
         start_time = time.time()
-        enumerate_nodes(node_list, callback, max_depth=len(node_list)-1+unary_operators_allowed)
+        enumerate_nodes(
+            node_list, callback, max_depth=len(node_list) - 1 + unary_operators_allowed
+        )
         end_time = time.time()
 
         callback.show(execution_time=end_time - start_time)
+
 
 main()
